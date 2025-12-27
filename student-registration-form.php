@@ -425,19 +425,19 @@ if ($_POST) {
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Qualification <span class="text-warning">*</span></label>
-                   <select name="qualification" class="form-select form-select-lg" required>
-    <option value="">Select Last Qualification</option>
-    <option value="Below 1st">Below 1st Class</option>
-    <option value="1st Pass">1st Class Pass</option>
-    <option value="2nd Pass">2nd Class Pass</option>
-    <option value="3rd Pass">3rd Class Pass</option>
-    <option value="4th Pass">4th Class Pass</option>
-    <option value="5th Pass">5th Class Pass</option>
-    <option value="6th Pass">6th Class Pass</option>
-    <option value="7th Pass">7th Class Pass</option>
-    <option value="8th Pass">8th Class Pass</option>
-    <option value="Others">Others</option>
-</select>
+                        <select name="qualification" class="form-select form-select-lg" required>
+                            <option value="">Select Last Qualification</option>
+                            <option value="Below 1st">Below 1st Class</option>
+                            <option value="1st Pass">1st Class Pass</option>
+                            <option value="2nd Pass">2nd Class Pass</option>
+                            <option value="3rd Pass">3rd Class Pass</option>
+                            <option value="4th Pass">4th Class Pass</option>
+                            <option value="5th Pass">5th Class Pass</option>
+                            <option value="6th Pass">6th Class Pass</option>
+                            <option value="7th Pass">7th Class Pass</option>
+                            <option value="8th Pass">8th Class Pass</option>
+                            <option value="Others">Others</option>
+                        </select>
 
                     </div>
                 </div>

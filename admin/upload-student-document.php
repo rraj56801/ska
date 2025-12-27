@@ -109,9 +109,12 @@ $documents = $doc_stmt->fetchAll();
                                 <select class="form-select form-select-lg" name="photo_type" id="photoType" required>
                                     <option value="">-- Select Document Type --</option>
                                     <option value="AADHAR">Aadhar Card</option>
-                                    <option value="PAN">PAN Card</option>
-                                    <option value="VOTER_ID">Voter ID</option>
                                     <option value="SIGNATURE">Signature</option>
+                                    <option value="" disabled>──────────</option>
+                                    <option value="CASTE">Caste Certificate</option>
+                                    <option value="DOMICILE">Domicile Certificate</option>
+                                    <option value="INCODE">Income Certificate</option>
+                                    <option value="" disabled>──────────</option>
                                     <option value="OTHERS">Others</option>
                                 </select>
                             </div>

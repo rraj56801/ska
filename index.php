@@ -77,8 +77,8 @@ if (isset($_SESSION['student'])) {
         }
 
         .loader-logo {
-            width: 200px;
-            height: 200px;
+            width: 350px;
+            height: 350px;
             object-fit: contain;
             border-radius: 24px;
             background: #ffffff;
@@ -209,7 +209,7 @@ if (isset($_SESSION['student'])) {
             font-size: 4.2rem;
             font-weight: 700;
             line-height: 1.1;
-            background: linear-gradient(135deg, #cb02beff 0%, #fef2f2 100%);
+            background: linear-gradient(135deg, #008B8B 0%, #fef2f2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 24px;
@@ -677,6 +677,10 @@ if (isset($_SESSION['student'])) {
                             <i class="bi bi-pencil-square me-1"></i>New Registration
                         </a>
                     </li>
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                        <div id="google_translate_element"></div>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -1008,6 +1012,21 @@ if (isset($_SESSION['student'])) {
             }, 500);
         });
     </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: 'en',          // your main language
+                    includedLanguages: 'en,hi',  // only English and Hindi
+                    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                },
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+    </script>
+
     <?php include 'includes/footer.php'; ?>
 </body>
 
