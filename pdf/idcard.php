@@ -379,7 +379,8 @@ if (!$student) {
                     </div>
                 </div>
                 <div class="card-title">
-                    <?= $student['center_code'] ? htmlspecialchars($student['center_code']) . ' | ' : '' ?>ID CARD</div>
+                    <?= $student['center_code'] ? htmlspecialchars($student['center_code']) . ' | ' : '' ?>ID CARD
+                </div>
             </div>
 
 
@@ -391,12 +392,13 @@ if (!$student) {
                         <div class="reg-badge"><?= $student['reg_no'] ?></div>
                     </div>
                     <div class="photo-container">
-                        <?php if ($student['photo'] && file_exists('../assets/images/students/' . $student['photo'])): ?>
-                            <img src="../assets/images/students/<?= htmlspecialchars($student['photo']) ?>"
-                                alt="Student Photo" class="photo-img">
-                        <?php else: ?>
-                            <div class="photo-placeholder">👤</div>
-                        <?php endif; ?>
+                        <?php
+                        // Proper photo path logic
+                        $photo_filename = trim($student['photo'] ?? '');
+                        $photo_path = $photo_filename ? "../assets/images/students/" . htmlspecialchars($photo_filename) : "../assets/images/default.jpeg";
+                        ?>
+                        <img src="<?= $photo_path ?>" alt="Student Photo" class="rounded-circle" width="160"
+                            height="160" onerror="this.onerror=null;this.src='../assets/images/default.jpeg';">
                     </div>
 
                 </div>
@@ -432,7 +434,8 @@ if (!$student) {
             <div class="footer-section">
                 <div class="address-line"><?= htmlspecialchars(substr($student['address'] ?: '—', 0, 45)) ?></div>
                 <div class="barcode-line"><?= $student['reg_no'] ?> |
-                    <?= date('M Y', strtotime($student['admission_date'])) ?></div>
+                    <?= date('M Y', strtotime($student['admission_date'])) ?>
+                </div>
             </div>
         </div>
 
