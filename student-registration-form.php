@@ -327,7 +327,7 @@ if ($_POST) {
         <!-- PAGE HEADER -->
         <div class="page-header">
             <h1 class="page-title">Student Registration</h1>
-            <a href="index" class="btn"
+            <a href="/" class="btn"
                 style="background: rgba(255,255,255,0.2); color: #fff; border: 2px solid rgba(255,255,255,0.4); padding: 14px 28px; border-radius: 50px; backdrop-filter: blur(10px); font-weight: 600; text-decoration: none;">
                 <i class="bi bi-arrow-left me-2"></i>Back
             </a>

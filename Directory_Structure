@@ -1,0 +1,54 @@
+SKAcademy/
+└── app/
+    ├── src/
+    │   └── main/
+    │       ├── java/
+    │       │   └── ska/
+    │       │       └── co/
+    │       │           └── school/                 👈 base package ska.co.school
+    │       │               ├── MainActivity.kt
+    │       │               ├── ui/
+    │       │               │   ├── screens/
+    │       │               │   │   ├── HomeScreen.kt
+    │       │               │   │   ├── StudentLoginScreen.kt
+    │       │               │   │   ├── AdminLoginScreen.kt
+    │       │               │   │   ├── StudentDashboardScreen.kt
+    │       │               │   │   └── AdminDashboardScreen.kt
+    │       │               │   └── theme/
+    │       │               │       ├── Color.kt
+    │       │               │       ├── Theme.kt
+    │       │               │       └── Type.kt
+    │       │               │
+    │       │               ├── data/
+    │       │               │   ├── model/
+    │       │               │   │   ├── Student.kt
+    │       │               │   │   ├── Admin.kt
+    │       │               │   │   └── LoginResponse.kt
+    │       │               │   ├── api/
+    │       │               │   │   └── SchoolApiService.kt
+    │       │               │   └── repository/
+    │       │               │       └── SchoolRepository.kt
+    │       │               │
+    │       │               ├── viewmodel/
+    │       │               │   ├── HomeViewModel.kt
+    │       │               │   └── LoginViewModel.kt
+    │       │               │
+    │       │               └── utils/
+    │       │                   └── SessionManager.kt
+    │       │
+    │       ├── res/
+    │       │   ├── drawable/
+    │       │   │   └── ska_logo.png
+    │       │   ├── layout/                (only if you use XML in addition to Compose)
+    │       │   │   └── activity_main.xml
+    │       │   ├── values/
+    │       │   │   ├── strings.xml
+    │       │   │   ├── colors.xml
+    │       │   │   └── themes.xml
+    │       │   └── mipmap/
+    │       │       ├── ic_launcher.png
+    │       │       └── ic_launcher_round.png
+    │       │
+    │       └── AndroidManifest.xml
+    │
+    └── build.gradle.kts

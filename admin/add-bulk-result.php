@@ -335,7 +335,21 @@ include 'header.php';
                                     <small class="text-muted">Choose course, then click Load Subjects.</small>
                                 </div>
 
-                                <!-- Subject -->
+                                <!-- Session -->
+                                <div class="col-md-4">
+                                    <label class="form-label mb-1">Session <span class="text-danger">*</span></label>
+                                    <select name="session" class="form-select form-select-sm" required>
+                                        <option value="">Select Session</option>
+                                        <?php foreach ($sessions as $session): ?>
+                                            <option value="<?= htmlspecialchars($session) ?>"
+                                                <?= $selected_session === $session ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($session) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="text-muted">Students will be filtered by this session.</small>
+                                </div>
+         <!-- Subject -->
                                 <div class="col-md-4">
                                     <label class="form-label mb-1">Subject <span class="text-danger">*</span></label>
                                     <select name="subject_code"
@@ -355,22 +369,6 @@ include 'header.php';
                                         Subjects appear after clicking Load Subjects.
                                     </small>
                                 </div>
-
-                                <!-- Session -->
-                                <div class="col-md-4">
-                                    <label class="form-label mb-1">Session <span class="text-danger">*</span></label>
-                                    <select name="session" class="form-select form-select-sm" required>
-                                        <option value="">Select Session</option>
-                                        <?php foreach ($sessions as $session): ?>
-                                            <option value="<?= htmlspecialchars($session) ?>"
-                                                <?= $selected_session === $session ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($session) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <small class="text-muted">Students will be filtered by this session.</small>
-                                </div>
-
                                 <!-- Buttons -->
                                 <div class="col-12">
                                     <div class="d-flex flex-column flex-md-row gap-2">
@@ -510,7 +508,7 @@ include 'header.php';
                                 <?php endif; ?>
 
                                 <div class="text-end">
-                                    <a href="dashboard.php" class="btn btn-secondary btn-lg px-4">
+                                    <a href="index" class="btn btn-secondary btn-lg px-4">
                                         <i class="bi bi-arrow-left me-2"></i>Back
                                     </a>
                                     <button type="submit" class="btn btn-success btn-lg px-4 ms-3">

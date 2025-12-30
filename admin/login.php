@@ -13,6 +13,7 @@ if ($_POST) {
     $admin = $stmt->fetch();
     if ($admin && password_verify($pass, $admin['password'])) {
         $_SESSION['admin'] = $admin;
+         $_SESSION['role'] = $admin['role'];
         header("Location: /ska/admin");
         exit();
     } else {

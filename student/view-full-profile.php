@@ -184,7 +184,8 @@ $results = $result_stmt->fetchAll();
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-lg-3 col-md-6 mb-2"><span class="info-label">Mobile:</span>
-                        <strong><?= $student['mobile'] ?></strong></div>
+                        <strong><?= $student['mobile'] ?></strong>
+                    </div>
                     <div class="col-lg-5 col-md-6 mb-2"><span class="info-label">Email:</span>
                         <?= $student['email'] ? htmlspecialchars($student['email']) : '—' ?></div>
                     <div class="col-lg-12 mb-2"><span class="info-label">Address:</span>
@@ -283,29 +284,45 @@ $results = $result_stmt->fetchAll();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($payments as $p): ?>
+                            <?php
+                            $currentYear = null;
+                            foreach ($payments as $p):
+                                $paymentYear = date('Y', strtotime($p['payment_date']));
+
+                                // When year changes, print a separator row
+                                if ($paymentYear !== $currentYear):
+                                    $currentYear = $paymentYear;
+                                    ?>
+                                    <tr class="table-light">
+                                        <td colspan="6" class="fw-bold">
+                                            Year: <?= $currentYear ?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                endif;
+                                ?>
                                 <tr>
                                     <td><?= date('d-M-Y', strtotime($p['payment_date'])) ?></td>
                                     <td><span class="badge bg-secondary"><?= $p['receipt_no'] ?></span></td>
                                     <td><strong>₹<?= number_format($p['amount'], 2) ?></strong></td>
                                     <td><?= htmlspecialchars($p['payment_mode']) ?></td>
                                     <td><?= htmlspecialchars($p['added_by']) ?></td>
-                                    <!-- Replace this link: -->
                                     <td>
                                         <span class="btn btn-sm btn-success disabled"
                                             style="pointer-events: none; cursor: not-allowed;" title="Not available">
                                             View
                                         </span>
                                     </td>
-
                                 </tr>
                             <?php endforeach; ?>
+
                             <?php if (empty($payments)): ?>
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">No payments yet</td>
+                                    <td colspan="6" class="text-center py-4 text-muted">No payments yet</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
+
                     </table>
                 </div>
             </div>
@@ -321,23 +338,24 @@ $results = $result_stmt->fetchAll();
                     <table class="table table-striped mb-0">
                         <thead class="bg-light">
                             <tr>
-                               <th>Exam Month</th>
-                                    <th>Subject Code</th>
-                                    <th>Theory</th>
-                                    <th>Total</th>
-                                    <th>%</th>
-                                    <th>Status</th>
-                                    <th>Result Date</th>
+                                <th>Exam Month</th>
+                                <th>Subject Code</th>
+                                <th>Theory</th>
+                                <th>Total</th>
+                                <th>%</th>
+                                <th>Status</th>
+                                <th>Result Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($results as $r): ?>
                                 <tr><strong>
-                                    <td><?= $r['exam_held_on'] ?></td>
-                                    <td><?= $r['subject_code'] ?></td>
-                                    <td><?= $r['theory_marks'] ?></td>
-                                    <td><?= $r['total_theory_marks'] ?></td>
-                                    <td><strong><?= number_format(($r['theory_marks'] / $r['total_theory_marks']) * 100, 1) ?><strong></strong>%</td>
+                                        <td><?= $r['exam_held_on'] ?></td>
+                                        <td><?= $r['subject_code'] ?></td>
+                                        <td><?= $r['theory_marks'] ?></td>
+                                        <td><?= $r['total_theory_marks'] ?></td>
+                                        <td><strong><?= number_format(($r['theory_marks'] / $r['total_theory_marks']) * 100, 1) ?><strong></strong>%
+                                        </td>
                                         <td>
                                             <span class="badge 
                                         <?= $r['result_status'] == 'PASS' ? 'bg-success' :
@@ -348,7 +366,8 @@ $results = $result_stmt->fetchAll();
                                                 <?= htmlspecialchars($r['result_status']) ?>
                                             </span>
                                         </td>
-                                        <td><?= $r['result_date'] ? date('d-M-Y', strtotime($r['result_date'])) : '—' ?></td>
+                                        <td><?= $r['result_date'] ? date('d-M-Y', strtotime($r['result_date'])) : '—' ?>
+                                        </td>
                                 </tr>
                             <?php endforeach; ?>
                             <?php if (empty($results)): ?>

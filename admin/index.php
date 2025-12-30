@@ -34,7 +34,7 @@ $total_centers = $pdo->query("SELECT COUNT(*) FROM study_centers WHERE is_active
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    
+
     <style>
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -83,7 +83,7 @@ $total_centers = $pdo->query("SELECT COUNT(*) FROM study_centers WHERE is_active
 </head>
 
 <body>
- 
+
     <div class="container-fluid mt-4 mb-5">
         <!-- Welcome Section -->
         <div class="row mb-5">
@@ -164,7 +164,8 @@ $total_centers = $pdo->query("SELECT COUNT(*) FROM study_centers WHERE is_active
                             <i class="bi bi-chat-dots" style="font-size: 2.5rem; color: #dc2626;"></i>
                         </div>
                         <h2 class="display-4 fw-bold mb-1" style="color: #ffffff;">
-                            <?= number_format($pending_approval) ?></h2>
+                            <?= number_format($pending_approval) ?>
+                        </h2>
                         <p class="mb-0 fs-5" style="color: #ffffff;">Pending Approvals</p>
                     </div>
 
@@ -195,6 +196,7 @@ $total_centers = $pdo->query("SELECT COUNT(*) FROM study_centers WHERE is_active
         </div>
 
     </div>
+
     <!-- Quick Links -->
     <div class="row">
         <div class="col-12">
@@ -204,34 +206,85 @@ $total_centers = $pdo->query("SELECT COUNT(*) FROM study_centers WHERE is_active
                     <i class="bi bi-lightning-charge me-2"></i>Quick Actions
                 </h3>
 
-                <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="add-student" class="btn btn-success btn-lg px-4 py-3 shadow-lg hover-lift">
-                        <i class="bi bi-person-plus fs-4 d-block mb-1"></i>Add Student
-                    </a>
-                    <a href="courses" class="btn btn-primary btn-lg px-4 py-3 shadow-lg hover-lift">
-                        <i class="bi bi-book fs-4 d-block mb-1"></i>Courses
-                    </a>
-                    <a href="all-study-centers"
-                        class="btn btn-warning text-dark btn-lg px-4 py-3 shadow-lg hover-lift">
-                        <i class="bi bi-building fs-4 d-block mb-1 text-dark"></i>Centers
-                    </a>
-                    <a href="add-bulk-result" class="btn btn-info btn-lg px-4 py-3 shadow-lg hover-lift">
-                        <i class="bi bi-clipboard-check fs-4 d-block mb-1"></i>Results
-                    </a>
-                    <a href="add-fee" class="btn btn-success btn-lg px-4 py-3 shadow-lg hover-lift">
-                        <i class="bi bi-cash-coin fs-4 d-block mb-1"></i>Fee Payment
-                    </a>
-                    <a href="branch-wallet"
-                        class="btn btn-outline-light btn-lg px-4 py-3 shadow-lg hover-lift border-2">
-                        <i class="bi bi-wallet2 fs-4 d-block mb-1"></i>Branch Wallet
-                    </a>
-                    <a href="cashier-wallet" class="btn btn-primary btn-lg px-4 py-3 shadow-lg hover-lift">
-                        <i class="bi bi-book fs-4 d-block mb-1"></i>Cashier Wallet
-                    </a>
+                <!-- First Row - 5 Buttons -->
+                <div class="row g-3 mb-3 justify-content-center">
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="add-student" class="btn btn-success btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-person-plus fs-4 d-block mb-1"></i>
+                            <small>Add Student</small>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="add-fee" class="btn btn-primary btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-cash-coin fs-4 d-block mb-1"></i>
+                            <small>Fee Payment</small>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="add-bulk-result" class="btn btn-info btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-clipboard-check fs-4 d-block mb-1"></i>
+                            <small>Add Results</small>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="courses" class="btn btn-secondary btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-book fs-4 d-block mb-1"></i>
+                            <small>Courses</small>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="all-study-centers" class="btn btn-dark btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-building fs-4 d-block mb-1"></i>
+                            <small>Study Centers</small>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Second Row - 4 or 5 Buttons (depending on Super Admin) -->
+                <div class="row g-3 justify-content-center">
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="branch-wallet"
+                            class="btn btn-warning text-dark btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-wallet2 fs-4 d-block mb-1"></i>
+                            <small>Branch Wallet</small>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="cashier-wallet" class="btn btn-danger btn-lg w-100 py-3 shadow-lg hover-lift">
+                            <i class="bi bi-person-badge fs-4 d-block mb-1"></i>
+                            <small>Cashier Wallet</small>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg">
+                        <a href="upload-gallery-photo"
+                            class="btn btn-outline-light btn-lg w-100 py-3 shadow-lg hover-lift border-2">
+                            <i class="bi bi-images fs-4 d-block mb-1"></i>
+                            <small>Gallery</small>
+                        </a>
+                    </div>
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'superadmin'): ?>
+                        <div class="col-6 col-md-4 col-lg">
+                            <a href="manage-admin" class="btn btn-light text-dark btn-lg w-100 py-3 shadow-lg hover-lift">
+                                <i class="bi bi-shield-lock fs-4 d-block mb-1"></i>
+                                <small>Manage Admins</small>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+        }
+    </style>
 
     <style>
         .hover-lift {

@@ -354,7 +354,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input type="text" class="form-control form-control-lg" id="cashier_name"
                                                 name="cashier_name"
                                                 value="<?= htmlspecialchars($_POST['cashier_name'] ?? ($_SESSION['admin']['name'] ?? '')) ?>"
-                                                required>
+                                                required readonly>
                                             <label for="cashier_name"><i class="bi bi-person-badge"></i> Cashier</label>
                                         </div>
                                         <small class="text-muted">Your Name</small>
@@ -391,7 +391,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
     </div>
 
-    
+
     <?php include '../includes/../includes/footer.php'; ?>
 </body>
 

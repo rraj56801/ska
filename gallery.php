@@ -4,7 +4,8 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/anti_inspect.php';
 
 // Fetch gallery images
-$stmt = $pdo->query("SELECT * FROM gallery_uploads ORDER BY upload_date DESC");
+$stmt = $pdo->query("SELECT * FROM gallery_uploads WHERE LOWER(caption) = 'main' ORDER BY upload_date DESC");
+
 $gallery_images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -295,17 +296,6 @@ $gallery_images = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <div class="gallery-item" data-bs-toggle="modal"
                                                 data-bs-target="#imageModal<?= (int) $image['id'] ?>">
                                                 <img src="<?= htmlspecialchars($image_path) ?>" alt="Gallery Image" class="gallery-img">
-
-                                                <div class="gallery-overlay">
-                                                    <div class="gallery-meta">
-                                                        <span class="badge-soft">
-                                                            <button type="button" class="btn btn-preview" data-bs-toggle="modal"
-                                                                data-bs-target="#imageModal<?= (int) $image['id'] ?>">
-                                                                <i class="bi bi-eye me-1"></i>View
-                                                            </button>
-                                                        </span>
-                                                    </div>
-                                                </div>
                                             </div>
 
                                             <!-- Modal -->

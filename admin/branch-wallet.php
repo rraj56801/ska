@@ -3,7 +3,7 @@ session_start();
 include '../includes/db.php';
 require_once __DIR__ . '/../includes/anti_inspect.php';
 
-if (!isset($_SESSION['admin'])) {
+if (!isset($_SESSION['admin']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
     include(__DIR__ . '/../forbidden.php');
     exit();
 }
@@ -21,7 +21,7 @@ $offset = ($page - 1) * $per_page;
 
 // Get all study centers (branches) for filter dropdown
 $branches = $pdo->query("
-    SELECT DISTINCT sc.center_code, sc.center_name, sc.id,sc.address
+    SELECT DISTINCT sc.center_code, sc.center_name, sc.id, sc.address
     FROM study_centers sc 
     ORDER BY sc.center_name
 ")->fetchAll();
@@ -29,6 +29,8 @@ $branches = $pdo->query("
 // WALLET DETAILS FOR SELECTED BRANCH
 $branch_wallet = [];
 $branch_name = '';
+$branch_yearly_totals = [];
+
 if (!empty($branch_filter)) {
     // Get branch name for display
     $branch_info = $pdo->prepare("SELECT center_name FROM study_centers WHERE center_code = ?");
@@ -36,7 +38,7 @@ if (!empty($branch_filter)) {
     $branch_info_result = $branch_info->fetch();
     $branch_name = $branch_info_result ? $branch_info_result['center_name'] : '';
 
-    // Total amount + count for that branch (CORRECTED)
+    // Total amount + count for that branch
     $wallet_total = $pdo->prepare("
         SELECT SUM(fp.amount) AS total_amount, COUNT(*) as txn_count
         FROM fee_payments fp
@@ -49,7 +51,7 @@ if (!empty($branch_filter)) {
     $branch_wallet['total_amount'] = $wallet_result['total_amount'] ?: 0;
     $branch_wallet['txn_count'] = $wallet_result['txn_count'] ?: 0;
 
-    // Today's total for that branch (CORRECTED)
+    // Today's total for that branch
     $wallet_today = $pdo->prepare("
         SELECT SUM(fp.amount) AS today_amount
         FROM fee_payments fp
@@ -59,9 +61,61 @@ if (!empty($branch_filter)) {
     ");
     $wallet_today->execute([$branch_filter]);
     $branch_wallet['today_amount'] = $wallet_today->fetchColumn() ?: 0;
+
+    // YEARLY TOTALS FOR SELECTED BRANCH
+    $yearly_stmt = $pdo->prepare("
+        SELECT YEAR(fp.payment_date) AS pay_year,
+               SUM(fp.amount) AS total_amount,
+               COUNT(*) AS txn_count
+        FROM fee_payments fp
+        INNER JOIN students s ON fp.reg_no = s.reg_no
+        INNER JOIN study_centers sc ON s.study_center_code = sc.center_code
+        WHERE sc.center_code = ?
+        GROUP BY YEAR(fp.payment_date)
+        ORDER BY pay_year DESC
+    ");
+    $yearly_stmt->execute([$branch_filter]);
+    $branch_yearly_totals = $yearly_stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // ALL BRANCHES TOTALS
+    $branch_name = 'All Branches';
+
+    $wallet_total_all = $pdo->query("
+        SELECT SUM(fp.amount) AS total_amount, COUNT(*) as txn_count
+        FROM fee_payments fp
+        INNER JOIN students s ON fp.reg_no = s.reg_no
+        INNER JOIN study_centers sc ON s.study_center_code = sc.center_code
+    ");
+    $wallet_result_all = $wallet_total_all->fetch();
+    $branch_wallet['total_amount'] = $wallet_result_all['total_amount'] ?: 0;
+    $branch_wallet['txn_count'] = $wallet_result_all['txn_count'] ?: 0;
+
+    // Today's total for all branches
+    $wallet_today_all = $pdo->query("
+        SELECT SUM(fp.amount) AS today_amount
+        FROM fee_payments fp
+        INNER JOIN students s ON fp.reg_no = s.reg_no
+        INNER JOIN study_centers sc ON s.study_center_code = sc.center_code
+        WHERE DATE(fp.payment_date) = CURDATE()
+    ");
+    $branch_wallet['today_amount'] = $wallet_today_all->fetchColumn() ?: 0;
+
+    // YEARLY TOTALS FOR ALL BRANCHES
+    $yearly_stmt_all = $pdo->query("
+        SELECT YEAR(fp.payment_date) AS pay_year,
+               SUM(fp.amount) AS total_amount,
+               COUNT(*) AS txn_count
+        FROM fee_payments fp
+        INNER JOIN students s ON fp.reg_no = s.reg_no
+        INNER JOIN study_centers sc ON s.study_center_code = sc.center_code
+        GROUP BY YEAR(fp.payment_date)
+        ORDER BY pay_year DESC
+    ");
+    $branch_yearly_totals = $yearly_stmt_all->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// COUNT TOTAL RESULTS (CORRECTED)
+
+// COUNT TOTAL RESULTS
 $count_query = "
     SELECT COUNT(DISTINCT fp.id) as total 
     FROM fee_payments fp
@@ -81,7 +135,7 @@ $count_stmt->execute($count_params);
 $total_payments = $count_stmt->fetchColumn();
 $total_pages = ceil($total_payments / $per_page);
 
-// FETCH PAYMENTS WITH PAGINATION + FILTER (CORRECTED)
+// FETCH PAYMENTS WITH PAGINATION + FILTER
 $payments_query = "
     SELECT fp.*, s.student_name, sc.center_name, sc.center_code
     FROM fee_payments fp
@@ -177,7 +231,6 @@ include 'header.php';
         <?php endif; ?>
 
         <!-- FILTER + PAGINATION INFO -->
-        <!-- Add this right after the Branch Wallet h3 -->
         <div class="row mb-4">
             <div class="col-md-6">
                 <h3 class="mb-2">Branch Wallet
@@ -204,14 +257,13 @@ include 'header.php';
                             <option value="">🎯 All Branches (<?= $total_payments ?>)</option>
                             <?php foreach ($branches as $b): ?>
                                 <?php
-
                                 $branch_count = $pdo->prepare("
-                                SELECT COUNT(DISTINCT fp.id) 
-                                FROM fee_payments fp
-                                INNER JOIN students s ON fp.reg_no = s.reg_no
-                                INNER JOIN study_centers sc ON s.study_center_code = sc.center_code
-                                WHERE sc.center_code = ?
-                            ");
+                                    SELECT COUNT(DISTINCT fp.id) 
+                                    FROM fee_payments fp
+                                    INNER JOIN students s ON fp.reg_no = s.reg_no
+                                    INNER JOIN study_centers sc ON s.study_center_code = sc.center_code
+                                    WHERE sc.center_code = ?
+                                ");
                                 $branch_count->execute([$b['center_code']]);
                                 $count = $branch_count->fetchColumn();
                                 ?>
@@ -238,16 +290,23 @@ include 'header.php';
                 </a>
             </div>
         </div>
-        <?php if (!empty($branch_filter)): ?>
+
+        <?php if (!empty($branch_filter) || empty($branch_filter)): ?>
             <!-- BRANCH WALLET SUMMARY -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card section-card branch-highlight">
                         <div class="card-body text-center text-white">
                             <h4 class="mb-3">
-                                <i class="bi bi-building me-2"></i><?= htmlspecialchars($branch_filter) ?> -
-                                <?= htmlspecialchars($branch_name) ?> Wallet
+                                <i class="bi bi-building me-2"></i>
+                                <?php if (!empty($branch_filter)): ?>
+                                    <?= htmlspecialchars($branch_filter) ?> - <?= htmlspecialchars($branch_name) ?>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($branch_name) ?>
+                                <?php endif; ?>
+                                Wallet
                             </h4>
+
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <div class="card bg-success bg-opacity-75 border-0">
@@ -277,11 +336,38 @@ include 'header.php';
                                     </div>
                                 </div>
                             </div>
+
+                            <?php if (!empty($branch_yearly_totals)): ?>
+                                <hr class="border-light my-4">
+                                <h5 class="mb-3">Yearly Collection</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered table-striped mb-0 text-white">
+                                        <thead>
+                                            <tr>
+                                                <th>Year</th>
+                                                <th>Total Amount</th>
+                                                <th>Transactions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($branch_yearly_totals as $y): ?>
+                                                <tr>
+                                                    <td><strong><?= (int) $y['pay_year'] ?></strong></td>
+                                                    <td>₹<?= number_format($y['total_amount'], 2) ?></td>
+                                                    <td><?= (int) $y['txn_count'] ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                 </div>
             </div>
         <?php endif; ?>
+
 
         <div class="card section-card">
             <div class="card-header card-header-main d-flex justify-content-between align-items-center">

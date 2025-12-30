@@ -1,0 +1,74 @@
+RewriteEngine On
+RewriteBase /ska/
+
+# -------------------------
+# Block direct access to /uploads,
+# allow only when coming from /ska/gallery
+# -------------------------
+RewriteCond %{REQUEST_URI} ^/ska/uploads(/.*)?$ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/gallery [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/view-all-gallery [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/admin/ [NC]
+RewriteRule ^uploads(/.*)?$ - [F,L]
+
+# -------------------------
+# Block direct access to /assets/images/students,
+# allow only from /ska/admin/*, /ska/students/*, or /ska/gallery*
+# -------------------------
+RewriteCond %{REQUEST_URI} ^/ska/assets/images/students(/.*)?$ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/admin/ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/student/ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/gallery [NC]
+RewriteRule ^assets/images/students(/.*)?$ - [F,L]
+
+# -------------------------
+# Block direct access to /assets/documents/students,
+# allow only from /ska/admin/*, /ska/students/*, or /ska/gallery*
+# -------------------------
+RewriteCond %{REQUEST_URI} ^/ska/assets/documents/students(/.*)?$ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/admin/ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/student/ [NC]
+RewriteCond %{HTTP_REFERER} !^https?://localhost/ska/gallery [NC]
+RewriteRule ^assets/documents/students(/.*)?$ - [F,L]
+
+# -------------------------
+# Security (safe for XAMPP)
+# -------------------------
+Options -Indexes
+
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+<FilesMatch "\.(bak|config|sql|ini|log|sh|bash|cmd)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# -------------------------
+# ADMIN SECTION - Clean URLs
+# -------------------------
+RewriteRule ^admin/?$ admin/index.php [L,QSA]
+RewriteRule ^admin/([a-zA-Z0-9_-]+)/?$ admin/$1.php [L,QSA]
+
+# -------------------------
+# ROOT PAGES - Clean URLs
+# -------------------------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+)$ $1.php [L,QSA]
+
+# Home page
+DirectoryIndex index.php
+
+# -------------------------
+# Error pages
+# -------------------------
+ErrorDocument 404 /ska/forbidden.php
+ErrorDocument 403 /ska/forbidden.php
+ErrorDocument 500 /ska/forbidden.php

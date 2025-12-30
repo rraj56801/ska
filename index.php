@@ -4,6 +4,25 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/anti_inspect.php';
 require_once __DIR__ . '/includes/functions.php';
 
+// ========== SIMPLE VISITOR COUNTER ==========
+$counterFile = __DIR__ . '/counter.txt';
+$visitorCount = 0;
+
+// Create file if it does not exist
+if (!file_exists($counterFile)) {
+    file_put_contents($counterFile, "0");
+}
+
+// Read current count
+$visitorCount = (int) file_get_contents($counterFile);
+
+// Count only once per session
+if (!isset($_SESSION['visitor_counted'])) {
+    $_SESSION['visitor_counted'] = true;
+    $visitorCount++;
+    file_put_contents($counterFile, (string) $visitorCount);
+}
+
 if (isset($_SESSION['student'])) {
     header('Location: student/student-dashboard');
     exit;
@@ -19,8 +38,8 @@ if (isset($_SESSION['student'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sri Krishna Academy</title>
-    <link rel="icon" type="image/x-icon" href="assets/images/ska-logo.png">
+    <title>Sri Krishna Academy Karjain</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/ska-logo-low.png">
 
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -462,17 +481,43 @@ if (isset($_SESSION['student'])) {
         }
 
         .director-avatar {
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: radial-gradient(circle, #dc2626, #7f1d1d);
+            overflow: hidden;
+            position: relative;
+            background: #f3f4f6;
+            /* light gray background */
+            border: 2px solid #dc2626;
+            /* Red600 ≈ #dc2626 */
+        }
+
+        .director-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .director-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            color: #ffffff;
-            font-weight: 600;
-            border: 2px solid rgba(220, 38, 38, 0.7);
+            color: #6b7280;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Show fallback icon only if image fails */
+        .director-avatar img.error~.director-fallback {
+            opacity: 1;
         }
 
         .director-name {
@@ -584,11 +629,15 @@ if (isset($_SESSION['student'])) {
         }
 
         .banner-slide:nth-child(2) {
-            animation-delay: 4s;
+            animation-delay: 3s;
         }
 
         .banner-slide:nth-child(3) {
-            animation-delay: 8s;
+            animation-delay: 6s;
+        }
+
+        .banner-slide:nth-child(4) {
+            animation-delay: 9s;
         }
 
         @keyframes bannerRotate {
@@ -612,7 +661,23 @@ if (isset($_SESSION['student'])) {
                 opacity: 0;
             }
         }
+
+        .affiliate-logo-large {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
     </style>
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://skaschool.co.in" />
+    <meta property="og:title" content="Sri Krishna Academy, Karjain, Supaul" />
+    <meta property="og:description"
+        content="Government-registered school. Admissions open for 2026–27. Specializes in Navodaya, Sainik School, Netarhat & other competitive exam preparation." />
+    <meta property="og:image" content="https://skaschool.co.in/assets/images/ska-logo-low.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Sri Krishna Academy" />
 </head>
 
 <body>
@@ -620,7 +685,7 @@ if (isset($_SESSION['student'])) {
     <nav class="navbar navbar-expand-lg navbar-dark main-navbar">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="assets/images/ska-logo.png" alt="Logo" width="36" height="36" class="me-2 rounded">
+                <img src="assets/images/ska-logo-low.png" alt="Logo" width="36" height="36" class="me-2 rounded">
                 <span>Sri Krishna Academy</span>
             </a>
 
@@ -722,7 +787,7 @@ if (isset($_SESSION['student'])) {
 
                 <p class="hero-subtitle">
                     Committed to nurturing young minds with excellence in academics, character development,
-                    and holistic growth – preparing students for a bright and successful future.
+                    and holistic growth тАУ preparing students for a bright and successful future.
                 </p>
 
                 <div class="cta-buttons">
@@ -731,6 +796,9 @@ if (isset($_SESSION['student'])) {
                     </a>
                     <a href="enquiry" class="btn-hero btn-hero-primary">
                         <i class="bi bi-chat-dots-fill"></i> Enquiry / Contact Us
+                    </a>
+                    <a href="uploads/photos/ska-release.apk" download="SKAcademy.apk" class="btn-hero btn-hero-primary">
+                        <i class="bi bi-download me-2"></i>Download Android App
                     </a>
                 </div>
             </div>
@@ -748,7 +816,10 @@ if (isset($_SESSION['student'])) {
                             class="director-photo banner-slide">
                         <img src="assets/banner/ska-banner.jpg" alt="Sri Krishna Academy Banner 3"
                             class="director-photo banner-slide">
+                        <img src="assets/banner/ska-red-banner.jpg" alt="Sri Krishna Academy Banner 4"
+                            class="director-photo banner-slide">
                     </div>
+
                 </div>
 
                 <h2 class="section-title">About Sri Krishna Academy</h2>
@@ -763,7 +834,7 @@ if (isset($_SESSION['student'])) {
                     <div class="about-content">
                         <h3>Quality Education & Excellence in Entrance Exam Preparation</h3>
                         <p>
-                            Sri Krishna Academy combines the best of both worlds – comprehensive school education
+                            Sri Krishna Academy combines the best of both worlds тАУ comprehensive school education
                             following government curriculum and specialized coaching for competitive entrance
                             examinations. Our dual approach ensures students receive strong academic foundation while
                             preparing for premier residential schools across India.
@@ -831,8 +902,11 @@ if (isset($_SESSION['student'])) {
                         <div class="director-card">
                             <div class="director-header">
                                 <div class="director-avatar">
-                                    <i class="bi bi-person-badge"></i>
+                                    <img src="assets/images/director-photo.jpeg" alt="Director Photo"
+                                        class="director-img">
+                                    <i class="bi bi-person-badge director-fallback"></i>
                                 </div>
+
                                 <div>
                                     <div class="director-name">Director's Message</div>
                                     <div class="director-role">Sri Krishna Academy</div>
@@ -864,35 +938,299 @@ if (isset($_SESSION['student'])) {
         </section>
 
 
-        <!-- OUR AFFILIATES SECTION -->
-        <section class="about-section about-section--compact">
+        <section class="about-section about-section--compact" id="hostel">
             <div class="section-container">
-                <h2 class="section-title">Our Affiliates</h2>
+                <h2 class="section-title">Campus &amp; Co-Hostel Facilities</h2>
                 <p class="section-subtitle">
-                    Recognized and associated with trusted organizations that enhance the value of our certifications.
+                    A safe, hygienic and student-friendly campus with residential and academic facilities that support
+                    focused study and holistic growth for both boys and girls.
                 </p>
 
-                <div class="row justify-content-center g-4">
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="affiliate-card d-flex align-items-center justify-content-center p-3">
-                            <img src="assets/banner/msme.jpg" alt="MSME" class="img-fluid affiliate-logo">
+                <div class="about-grid">
+                    <!-- Left Column: Academic & Campus + Stay -->
+                    <div class="about-content">
+                        <h3>Academic &amp; Comfortable Stay</h3>
+                        <p>
+                            The campus offers well-ventilated classrooms, a disciplined study atmosphere and regular
+                            tests to build
+                            strong concepts for school as well as entrance exams. Our co-educational hostel is designed
+                            to provide a
+                            homely and supportive environment for students.
+                        </p>
+                        <p>
+                            Rooms are spacious, well-ventilated and regularly maintained. Routine inspections, timely
+                            repairs and
+                            dedicated housekeeping staff keep the campus clean, organized and conducive to learning
+                            throughout the year.
+                        </p>
+
+                        <div class="about-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">🏫</div>
+                                <div>
+                                    <strong>Classrooms &amp; Study Halls</strong><br>
+                                    Neat, well-arranged classrooms and group study areas with proper seating, boards and
+                                    lighting
+                                    for focused learning.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">⏱️</div>
+                                <div>
+                                    <strong>Structured Daily Routine</strong><br>
+                                    Well-planned schedule including wake-up, study hours, games, meals and rest, helping
+                                    students
+                                    build good habits and time management skills.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">📚</div>
+                                <div>
+                                    <strong>Library &amp; Study Material</strong><br>
+                                    Access to reference books, previous year papers and exam-oriented study material to
+                                    support entrance preparation.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">⚽</div>
+                                <div>
+                                    <strong>Games &amp; Activities</strong><br>
+                                    Outdoor and indoor activities to promote physical fitness, teamwork and stress-free
+                                    learning.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🧹</div>
+                                <div>
+                                    <strong>Hygienic Campus &amp; Clean Rooms</strong><br>
+                                    Daily cleaning of rooms, corridors and washrooms with proper waste disposal and
+                                    regular sanitization
+                                    to maintain high health and hygiene standards.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🍽️</div>
+                                <div>
+                                    <strong>Nutritious &amp; Safe Food</strong><br>
+                                    Freshly cooked meals served in a clean dining area, with purified drinking water and
+                                    periodic
+                                    kitchen inspections.
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="affiliate-card d-flex align-items-center justify-content-center p-3">
-                            <img src="assets/banner/iso.png" alt="ISO 9001:2015" class="img-fluid affiliate-logo">
-                        </div>
-                    </div>
+                    <!-- Right Column: Hostel Routine & Safety -->
+                    <div class="about-content">
+                        <h3>Co-Hostel Routine &amp; Safety</h3>
+                        <p>
+                            The co-educational hostel provides separate, secure accommodation for boys and girls with
+                            strict discipline,
+                            supervised routine and regular monitoring. The daily schedule includes morning preparation,
+                            school or
+                            coaching classes, evening study hours and recreational time to maintain a healthy balance.
+                        </p>
+                        <p>
+                            Parents are regularly updated about their ward’s progress, discipline and well-being through
+                            calls, meetings
+                            and scheduled interaction sessions, ensuring transparency and trust.
+                        </p>
 
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="affiliate-card d-flex align-items-center justify-content-center p-3">
-                            <img src="assets/banner/digi.png" alt="Digital Affiliate" class="img-fluid affiliate-logo">
+                        <div class="about-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">🧼</div>
+                                <div>
+                                    <strong>Clean &amp; Hygienic Stay</strong><br>
+                                    Regular cleaning of rooms, washrooms and common areas, purified drinking water and
+                                    proper
+                                    waste management for student health.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🧑‍🏫</div>
+                                <div>
+                                    <strong>Wardens &amp; Academic Support</strong><br>
+                                    Separate wardens and caretakers for boys and girls, along with supervised study
+                                    hours to support
+                                    discipline, safety and academic progress.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🎥</div>
+                                <div>
+                                    <strong>24×7 CCTV &amp; Supervision</strong><br>
+                                    CCTV cameras at key locations such as gate, corridors and common areas, with
+                                    controlled entry/exit
+                                    and round-the-clock supervision.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🚫</div>
+                                <div>
+                                    <strong>Strict Discipline &amp; Attendance</strong><br>
+                                    Mandatory attendance, fixed in–out timings and proper gate register entries help
+                                    maintain security
+                                    and accountability for all students.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">👨‍👩‍👧‍👦</div>
+                                <div>
+                                    <strong>Parent Interaction</strong><br>
+                                    Scheduled visiting hours and regular communication with parents about student
+                                    discipline,
+                                    health and academic progress.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <section class="about-section about-section--compact" id="admissions">
+            <div class="section-container">
+                <h2 class="section-title">Admissions &amp; Fee Details</h2>
+                <p class="section-subtitle">
+                    Clear and simple admission process for school as well as entrance coaching, designed to guide
+                    parents and students step by step.
+                </p>
+
+                <div class="about-grid">
+                    <div class="about-content">
+                        <h3>Who Can Apply</h3>
+                        <p>
+                            Admissions are open for eligible students for both regular schooling and entrance coaching
+                            batches
+                            targeting Navodaya Vidyalaya, Sainik School, Netarhat and other competitive exams.
+                        </p>
+                        <p>
+                            Parents can visit the campus on working days to understand class options, hostel facility
+                            availability
+                            and batch timings before submitting the admission form.
+                        </p>
+
+                        <div class="about-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">📝</div>
+                                <div>
+                                    <strong>Required Documents</strong><br>
+                                    Recent passport size photos, previous school mark sheet, transfer certificate (if
+                                    applicable),
+                                    Aadhaar card and any relevant caste or income certificate.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">📅</div>
+                                <div>
+                                    <strong>Admission Process</strong><br>
+                                    Visit the office, collect the admission form, submit the required documents and
+                                    complete the interaction or test if applicable.
+                                    Students can also register online directly from this website using the <a
+                                        href="student-registration-form" class="text-decoration-none">online
+                                        registration form</a>.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="about-content">
+                        <h3>Fee Structure &amp; Support</h3>
+                        <p>
+                            The fee structure is designed to remain affordable for families while maintaining quality
+                            teaching,
+                            hostel facilities and exam preparation support.
+                        </p>
+                        <p>
+                            Detailed class-wise and hostel fee information is available at the school office; parents
+                            can clarify
+                            payment schedules, installment options and any scholarship support in person.
+                        </p>
+
+                        <div class="about-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">💳</div>
+                                <div>
+                                    <strong>Payment Options</strong><br>
+                                    Fees can be paid through cash, bank transfer or UPI at the office counter along with
+                                    a proper receipt.
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🎁</div>
+                                <div>
+                                    <strong>Scholarships &amp; Concessions</strong><br>
+                                    Meritorious and economically weaker students may be considered for concessions as
+                                    per academy policy.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section about-section--compact">
+            <div class="section-container">
+                <h2 class="section-title">Our Affiliates</h2>
+                <p class="section-subtitle">
+                    Recognized and associated with trusted organizations that enhance the value of our certifications
+                    and ensure quality standards for our students.
+                </p>
+
+                <div class="row justify-content-center g-4">
+                    <!-- MSME -->
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div
+                            class="affiliate-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
+                            <img src="assets/banner/msme.jpg" alt="MSME Registered Institution Logo"
+                                class="img-fluid affiliate-logo mb-2">
+                            <small class="text-muted">
+                                MSME registration reflects our commitment to professional institutional standards and
+                                continuous growth.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- ISO 9001:2015 -->
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div
+                            class="affiliate-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
+                            <img src="assets/banner/iso.png" alt="ISO 9001:2015 Certified Institution Logo"
+                                class="img-fluid affiliate-logo mb-2">
+                            <small class="text-muted">
+                                ISO 9001:2015 certification demonstrates our focus on quality management and structured
+                                academic processes.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Digital / Digi -->
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div
+                            class="affiliate-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
+                            <img src="assets/banner/digi.png" alt="Digital Education & Skill Development Affiliate Logo"
+                                class="img-fluid affiliate-logo mb-2">
+                            <small class="text-muted">
+                                Our digital affiliation highlights the integration of technology with classroom learning
+                                for modern education.
+                            </small>
+                        </div>
+                    </div>
+                    <!-- Check Us Out on Google -->
+                    <div class="col-6 col-md-5 col-lg-4">
+                        <div
+                            class="affiliate-card d-flex flex-column align-items-center justify-content-center p-3 text-center">
+                            <img src="assets/banner/check-google.jpeg" alt="Check Us Out on Google QR Code"
+                                class="img-fluid affiliate-logo-large">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
 
 
         <!-- Gallery iframe -->
@@ -1025,6 +1363,16 @@ if (isset($_SESSION['student'])) {
         }
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const img = document.querySelector('.director-img');
+            if (img) {
+                img.addEventListener('error', function () {
+                    img.classList.add('error');
+                });
+            }
+        });
     </script>
 
     <?php include 'includes/footer.php'; ?>

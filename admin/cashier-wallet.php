@@ -51,6 +51,22 @@ if (!empty($cashier_filter)) {
     $cashier_wallet['today_amount'] = $wallet_today->fetchColumn() ?: 0;
 }
 
+// YEARLY TOTALS FOR SELECTED CASHIER
+$cashier_yearly_totals = [];
+if (!empty($cashier_filter)) {
+    $yearly_stmt = $pdo->prepare("
+        SELECT YEAR(payment_date) AS pay_year,
+               SUM(amount) AS total_amount,
+               COUNT(*) AS txn_count
+        FROM fee_payments
+        WHERE added_by = ?
+        GROUP BY YEAR(payment_date)
+        ORDER BY pay_year DESC
+    ");
+    $yearly_stmt->execute([$cashier_filter]);
+    $cashier_yearly_totals = $yearly_stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // COUNT TOTAL RESULTS
 $count_query = "SELECT COUNT(*) as total FROM fee_payments fp WHERE added_by IS NOT NULL";
 $count_params = [];
@@ -216,49 +232,79 @@ include 'header.php';
                 </a>
             </div>
         </div>
+
+
+        
         <?php if (!empty($cashier_filter)): ?>
-            <!-- CASHIER WALLET SUMMARY -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card section-card cashier-highlight">
-                        <div class="card-body text-center text-white">
-                            <h4 class="mb-3">
-                                <i class="bi bi-person-badge me-2"></i><?= htmlspecialchars($cashier_filter) ?> Wallet
-                            </h4>
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <div class="card bg-success bg-opacity-75 border-0">
-                                        <div class="card-body">
-                                            <i class="bi bi-wallet2 fs-1 mb-2"></i>
-                                            <h3>₹<?= number_format($cashier_wallet['total_amount'], 2) ?></h3>
-                                            <p class="mb-0">Total Collected</p>
-                                        </div>
-                                    </div>
+    <!-- CASHIER WALLET SUMMARY -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card section-card cashier-highlight">
+                <div class="card-body text-center text-white">
+                    <h4 class="mb-3">
+                        <i class="bi bi-person-badge me-2"></i><?= htmlspecialchars($cashier_filter) ?> Wallet
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card bg-success bg-opacity-75 border-0">
+                                <div class="card-body">
+                                    <i class="bi bi-wallet2 fs-1 mb-2"></i>
+                                    <h3>₹<?= number_format($cashier_wallet['total_amount'], 2) ?></h3>
+                                    <p class="mb-0">Total Collected</p>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-primary bg-opacity-75 border-0">
-                                        <div class="card-body">
-                                            <i class="bi bi-calendar-day fs-1 mb-2"></i>
-                                            <h3>₹<?= number_format($cashier_wallet['today_amount'], 2) ?></h3>
-                                            <p class="mb-0">Today Collected</p>
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-primary bg-opacity-75 border-0">
+                                <div class="card-body">
+                                    <i class="bi bi-calendar-day fs-1 mb-2"></i>
+                                    <h3>₹<?= number_format($cashier_wallet['today_amount'], 2) ?></h3>
+                                    <p class="mb-0">Today Collected</p>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-info bg-opacity-75 border-0">
-                                        <div class="card-body">
-                                            <i class="bi bi-receipt fs-1 mb-2"></i>
-                                            <h3><?= $cashier_wallet['txn_count'] ?></h3>
-                                            <p class="mb-0">Total Transactions</p>
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info bg-opacity-75 border-0">
+                                <div class="card-body">
+                                    <i class="bi bi-receipt fs-1 mb-2"></i>
+                                    <h3><?= $cashier_wallet['txn_count'] ?></h3>
+                                    <p class="mb-0">Total Transactions</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <?php if (!empty($cashier_yearly_totals)): ?>
+                        <hr class="border-light my-4">
+                        <h5 class="mb-3">Yearly Collection</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered table-striped mb-0 text-white">
+                                <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Total Amount</th>
+                                        <th>Transactions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($cashier_yearly_totals as $y): ?>
+                                        <tr>
+                                            <td><strong><?= (int)$y['pay_year'] ?></strong></td>
+                                            <td>₹<?= number_format($y['total_amount'], 2) ?></td>
+                                            <td><?= (int)$y['txn_count'] ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>
+
 
         <div class="card section-card">
             <div class="card-header card-header-main d-flex justify-content-between align-items-center">

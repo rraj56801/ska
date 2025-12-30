@@ -28,6 +28,12 @@ $student = $stmt->fetch();
 if (!$student)
     die("Student not found");
 
+// Accurate Paid / Due Fees
+$paid_stmt = $pdo->prepare("SELECT COALESCE(SUM(amount), 0) FROM fee_payments WHERE reg_no = ?");
+$paid_stmt->execute([$reg_no]);
+$paid_fees = $paid_stmt->fetchColumn();
+$due_fees = $student['total_fees'] - $paid_fees;
+
 // Handle update
 if ($_POST) {
     $data = [
@@ -370,26 +376,38 @@ $centres = $pdo->query("SELECT id, center_name, center_code FROM study_centers w
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        // Auto-fill Total Fees from course
-        document.addEventListener("DOMContentLoaded", function () {
-            const courseSelect = document.getElementById("courseSelect");
-            const feesInput = document.getElementById("totalFeesInput");
+<script>
+    // Auto-fill Total Fees from course + add pending dues only if class changes
+    document.addEventListener("DOMContentLoaded", function () {
+        const courseSelect = document.getElementById("courseSelect");
+        const feesInput = document.getElementById("totalFeesInput");
+        
+        // Current class info from PHP
+        const currentClassCode = "<?= $student['course_code'] ?>";
+        const currentPendingDues = <?= $due_fees ?>;
 
-            function updateFees() {
-                const selected = courseSelect.options[courseSelect.selectedIndex];
-                if (selected && selected.value !== "") {
-                    const fees = selected.getAttribute("data-fees");
-                    if (fees !== null) {
-                        feesInput.value = parseFloat(fees).toFixed(2);
-                    }
+        function updateFees() {
+            const selected = courseSelect.options[courseSelect.selectedIndex];
+            if (selected && selected.value !== "") {
+                const newCourseFees = parseFloat(selected.getAttribute("data-fees")) || 0;
+                const selectedClassCode = selected.value;
+                
+                // Only add pending dues if changing to a different class
+                if (selectedClassCode !== currentClassCode) {
+                    const totalFees = newCourseFees + currentPendingDues;
+                    feesInput.value = totalFees.toFixed(2);
+                } else {
+                    // Same class - just show the course fees
+                    feesInput.value = newCourseFees.toFixed(2);
                 }
             }
+        }
 
-            courseSelect.addEventListener("change", updateFees);
-            updateFees(); // Run on load
-        });
-    </script>
+        courseSelect.addEventListener("change", updateFees);
+        updateFees(); // Run on load
+    });
+</script>
+
 <script>
     const dobInput = document.getElementById('dob');
 

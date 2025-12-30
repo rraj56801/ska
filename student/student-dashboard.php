@@ -44,7 +44,7 @@ $result_stmt->execute([$reg_no]);
 $results = $result_stmt->fetchAll();
 
 // Check if QR code exists
-$qr_path = "assets/images/qrpayment.jpeg"; // or .jpg
+$qr_path = "../assets/images/qrpayment.jpeg"; // or .jpg
 $qr_exists = file_exists($qr_path);
 
 // Status + flag for document enabling

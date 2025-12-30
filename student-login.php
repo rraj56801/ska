@@ -6,7 +6,7 @@ session_start();
 // Handle logout FIRST (before any output)
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: /ska");
+    header("Location: /ska/");
     exit();
 }
 

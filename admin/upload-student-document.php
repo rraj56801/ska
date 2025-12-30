@@ -52,6 +52,14 @@ $documents = $doc_stmt->fetchAll();
             background: #e9ecef;
             transform: translateX(5px);
         }
+        .filename-nowrap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 260px; /* tweak for your layout */
+}
+
     </style>
 </head>
 <body class="bg-light">
@@ -141,46 +149,64 @@ $documents = $doc_stmt->fetchAll();
             </div>
 
             <!-- Existing Documents -->
-            <div class="card upload-card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-files me-2"></i>Uploaded Documents (<?= count($documents) ?>)
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <?php if (empty($documents)): ?>
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-inbox display-4 d-block mb-3"></i>
-                            <p>No documents uploaded yet</p>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach ($documents as $doc): ?>
-                            <div class="document-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="badge bg-info me-2"><?= htmlspecialchars($doc['photo_type']) ?></span>
-                                    <strong><?= htmlspecialchars($doc['original_name']) ?></strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        <i class="bi bi-calendar me-1"></i><?= date('d-M-Y H:i', strtotime($doc['upload_date'])) ?>
-                                        | <i class="bi bi-hdd me-1"></i><?= number_format($doc['file_size'] / 1024, 2) ?> KB
-                                    </small>
-                                </div>
-                                <div>
-                                    <a href="../assets/documents/students/<?= htmlspecialchars($doc['filename']) ?>" 
-                                       class="btn btn-sm btn-outline-primary me-2" target="_blank">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-                                    <a href="delete-document.php?id=<?= $doc['id'] ?>&reg=<?= urlencode($reg_no) ?>" 
-                                       class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Delete this document?')">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </a>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
+       <div class="card upload-card mt-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-files me-2"></i>Uploaded Documents (<?= count($documents) ?>)
+        </h5>
+    </div>
+    <div class="card-body">
+        <?php if (empty($documents)): ?>
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                <p>No documents uploaded yet</p>
             </div>
+        <?php else: ?>
+            <?php foreach ($documents as $doc): ?>
+                <div class="document-item">
+                    <div class="row align-items-center">
+                        <!-- Left: info -->
+                        <div class="col-md-8 d-flex flex-column">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="badge bg-info me-2">
+                                    <?= htmlspecialchars($doc['photo_type']) ?>
+                                </span>
+                                <strong class="filename-nowrap">
+                                    <?= htmlspecialchars($doc['original_name']) ?>
+                                </strong>
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>
+                                <?= date('d-M-Y H:i', strtotime($doc['upload_date'])) ?>
+                                | <i class="bi bi-hdd me-1"></i>
+                                <?= number_format($doc['file_size'] / 1024, 2) ?> KB
+                            </small>
+                        </div>
+
+                        <!-- Right: actions -->
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <div class="btn-group" role="group">
+                                <a href="../assets/documents/students/<?= htmlspecialchars($doc['filename']) ?>" 
+                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a href="download-document.php?file=<?= urlencode($doc['filename']) ?>" 
+                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                                <a href="delete-document.php?id=<?= $doc['id'] ?>&reg=<?= urlencode($reg_no) ?>" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Delete this document?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+</div>
 
         </div>
     </div>

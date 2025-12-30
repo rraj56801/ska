@@ -16,42 +16,20 @@ $offset = ($page - 1) * $per_page;
 
 $search = trim($_GET['search'] ?? '');
 $sort = $_GET['sort'] ?? 'latest';
-$course_filter = trim($_GET['course'] ?? '');
 
 // Get pending approval count
 $pending_stmt = $pdo->query("SELECT COUNT(*) FROM students WHERE status = 'Pending Approval'");
 $pending_count = $pending_stmt->fetchColumn();
 
-// Get all courses for dropdown
-$courses_stmt = $pdo->query("
-    SELECT course_code, course_name 
-    FROM courses 
-    ORDER BY course_name
-");
-$courses = $courses_stmt->fetchAll(PDO::FETCH_ASSOC);
-
 // Build WHERE
-$where_conditions = [];
+$where_clause = "";
 $where_params = [];
-
 if ($search !== '') {
+    $where_clause = "WHERE (s.reg_no LIKE ? OR s.student_name LIKE ? OR s.mobile LIKE ? OR s.father_name LIKE ?)";
     $like = "%$search%";
-    $where_conditions[] = "(s.reg_no LIKE ? OR s.student_name LIKE ? OR s.mobile LIKE ? OR s.father_name LIKE ?)";
-    $where_params[] = $like;
-    $where_params[] = $like;
-    $where_params[] = $like;
-    $where_params[] = $like;
+    $where_params = [$like, $like, $like, $like];
 }
 
-if ($course_filter !== '') {
-    $where_conditions[] = "s.course_code = ?";
-    $where_params[] = $course_filter;
-}
-
-$where_clause = '';
-if (!empty($where_conditions)) {
-    $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
-}
 
 // Sorting
 $order_by = match ($sort) {
@@ -62,7 +40,7 @@ $order_by = match ($sort) {
     default => "s.id DESC"
 };
 
-// MAIN QUERY
+// MAIN QUERY – paid_fees from fee_payments table (supports multiple payments)
 $sql = "
     SELECT 
         s.id,
@@ -123,30 +101,16 @@ $total_pages = ceil($total / $per_page);
             </div>
         </div>
 
-        <!-- Search, Course Filter & Sort -->
+        <!-- Search & Sort -->
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-lg-4">
-                        <label class="form-label fw-bold">Search</label>
+                    <div class="col-lg-5">
                         <input type="text" class="form-control form-control-lg" id="searchBox"
                             placeholder="Search by Reg No, Name, Mobile, Father..."
                             value="<?= htmlspecialchars($search) ?>">
                     </div>
-                    <div class="col-lg-3">
-                        <label class="form-label fw-bold">Filter by Course</label>
-                        <select class="form-select form-select-lg" id="courseSelect">
-                            <option value="">All Courses</option>
-                            <?php foreach ($courses as $course): ?>
-                                <option value="<?= htmlspecialchars($course['course_code']) ?>"
-                                    <?= $course_filter === $course['course_code'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($course['course_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-lg-3">
-                        <label class="form-label fw-bold">Sort By</label>
+                    <div class="col-lg-4">
                         <select class="form-select form-select-lg" id="sortSelect">
                             <option value="latest" <?= $sort == 'latest' ? 'selected' : '' ?>>Latest First</option>
                             <option value="name_asc" <?= $sort == 'name_asc' ? 'selected' : '' ?>>Name A-Z</option>
@@ -156,33 +120,10 @@ $total_pages = ceil($total / $per_page);
                             </option>
                         </select>
                     </div>
-                    <div class="col-lg-2 d-flex align-items-end">
-                        <button class="btn btn-primary btn-lg w-100" onclick="applyFilters()">
-                            <i class="bi bi-search me-1"></i>Apply
-                        </button>
+                    <div class="col-lg-3">
+                        <button class="btn btn-primary btn-lg w-100" onclick="applyFilters()">Search & Sort</button>
                     </div>
                 </div>
-
-                <?php if ($search !== '' || $course_filter !== ''): ?>
-                    <div class="mt-3">
-                        <span class="badge bg-info fs-6 me-2">
-                            Active Filters:
-                            <?php if ($search !== ''): ?>
-                                <span class="ms-1">Search: "<?= htmlspecialchars($search) ?>"</span>
-                            <?php endif; ?>
-                            <?php if ($course_filter !== ''): ?>
-                                <?php
-                                $selected_course = array_filter($courses, fn($c) => $c['course_code'] === $course_filter);
-                                $selected_course_name = !empty($selected_course) ? reset($selected_course)['course_name'] : $course_filter;
-                                ?>
-                                <span class="ms-1">Course: <?= htmlspecialchars($selected_course_name) ?></span>
-                            <?php endif; ?>
-                        </span>
-                        <a href="?" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-x-circle me-1"></i>Clear All Filters
-                        </a>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
 
@@ -217,9 +158,11 @@ $total_pages = ceil($total / $per_page);
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <?php
+                                        // Proper photo path logic
                                         $photo_filename = trim($s['photo'] ?? '');
                                         $photo_path = $photo_filename ? "../assets/images/students/" . htmlspecialchars($photo_filename) : "../assets/images/default.jpeg";
                                         ?>
+
                                         <img src="<?= $photo_path ?>" alt="Student Photo" class="rounded-circle me-3" width="40"
                                             height="40" onerror="this.onerror=null;this.src='../assets/images/default.jpeg';">
                                         <?= htmlspecialchars($s['student_name']) ?>
@@ -239,8 +182,10 @@ $total_pages = ceil($total / $per_page);
                                 <td><?= date('d-M-Y', strtotime($s['admission_date'])) ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
+
                                         <a href="view-student?reg=<?= urlencode($s['reg_no']) ?>"
                                             class="btn btn-info btn-sm">View</a>
+
                                         <a href="edit-student?reg=<?= urlencode($s['reg_no']) ?>"
                                             class="btn btn-primary btn-sm">Edit</a>
                                         <button type="button"
@@ -249,72 +194,34 @@ $total_pages = ceil($total / $per_page);
                                             More
                                         </button>
                                         <ul class="dropdown-menu">
-                                            <!-- Most Frequent Operations -->
-                                            <li>
-                                                <h6 class="dropdown-header"><i class="bi bi-lightning-fill me-1"></i>Quick
-                                                    Actions</h6>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-success" href="add-fee?reg=<?= $s['reg_no'] ?>">
-                                                    <i class="bi bi-cash-coin me-2"></i>Add Fee Payment
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-primary" href="add-result?reg=<?= $s['reg_no'] ?>">
-                                                    <i class="bi bi-clipboard-check me-2"></i>Add Result
-                                                </a>
-                                            </li>
 
+                                            <li><a class="dropdown-item text-success"
+                                                    href="add-fee?reg=<?= $s['reg_no'] ?>">Add Fee</a></li>
                                             <li>
                                                 <hr class="dropdown-divider">
                                             </li>
 
-                                            <!-- Document Generation -->
-                                            <li>
-                                                <h6 class="dropdown-header"><i class="bi bi-file-earmark-text me-1"></i>Generate
-                                                    Documents</h6>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-info"
-                                                    href="generate-id-card?reg=<?= $s['reg_no'] ?>">
-                                                    <i class="bi bi-person-badge me-2"></i>ID Card
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-info"
-                                                    href="generate-admit-card?reg=<?= $s['reg_no'] ?>">
-                                                    <i class="bi bi-card-checklist me-2"></i>Admit Card
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-info"
-                                                    href="generate-marksheet?reg=<?= $s['reg_no'] ?>">
-                                                    <i class="bi bi-journal-text me-2"></i>Marksheet
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-info"
-                                                    href="generate-certificate?reg=<?= $s['reg_no'] ?>" target="_blank">
-                                                    <i class="bi bi-award me-2"></i>Certificate
-                                                </a>
-                                            </li>
-
+                                            <li><a class="dropdown-item text-warning"
+                                                    href="manage-id-admit-cert-mark?reg=<?= $s['reg_no'] ?>">Manage
+                                                    Documents</a></li>
                                             <li>
                                                 <hr class="dropdown-divider">
                                             </li>
+                                            <li><a class="dropdown-item"
+                                                    href="generate-id-card?reg=<?= $s['reg_no'] ?>">Generate ID Card</a>
+                                            </li>
+                                            <li><a class="dropdown-item" href="add-result?reg=<?= $s['reg_no'] ?>">Add
+                                                    Result</a></li>
+                                            <li><a class="dropdown-item" href="generate-certificate?reg=<?= $s['reg_no'] ?>"
+                                                    target="_blank">Generate Certificate</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="generate-marksheet?reg=<?= $s['reg_no'] ?>">Generate Marksheet</a>
+                                            </li>
+                                            <li><a class="dropdown-item"
+                                                    href="generate-admit-card?reg=<?= $s['reg_no'] ?>">Generate Admit
+                                                    Card</a></li>
 
-                                            <!-- Management -->
-                                            <li>
-                                                <h6 class="dropdown-header"><i class="bi bi-gear me-1"></i>Manage</h6>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item text-warning"
-                                                    href="manage-id-admit-cert-mark?reg=<?= $s['reg_no'] ?>">
-                                                    <i class="bi bi-folder-check me-2"></i>Manage Documents
-                                                </a>
-                                            </li>
                                         </ul>
-
                                     </div>
                                 </td>
                             </tr>
@@ -332,10 +239,9 @@ $total_pages = ceil($total / $per_page);
                     $start = max(1, $page - 5);
                     $end = min($total_pages, $page + 5);
                     for ($i = $start; $i <= $end; $i++):
-                        $page_url = "?page=$i&search=" . urlencode($search) . "&sort=" . urlencode($sort) . "&course=" . urlencode($course_filter);
                         ?>
                         <li class="page-item <?= $i == $page ? 'active' : '' ?>">
-                            <a class="page-link" href="<?= $page_url ?>">
+                            <a class="page-link" href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&sort=<?= $sort ?>">
                                 <?= $i ?>
                             </a>
                         </li>
@@ -351,29 +257,16 @@ $total_pages = ceil($total / $per_page);
         function applyFilters() {
             const search = document.getElementById('searchBox').value.trim();
             const sort = document.getElementById('sortSelect').value;
-            const courseFilter = document.getElementById('courseSelect').value;
-
-            const params = new URLSearchParams();
-            if (search !== '') params.set('search', search);
-            if (sort !== 'latest') params.set('sort', sort);
-            if (courseFilter !== '') params.set('course', courseFilter);
-            params.set('page', '1');
-
-            window.location.href = '?' + params.toString();
+            window.location.href = `?search=${encodeURIComponent(search)}&sort=${sort}&page=1`;
         }
 
-        const searchBox = document.getElementById('searchBox');
-        if (searchBox) {
-            searchBox.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    applyFilters();
-                }
-            });
-        }
+        // Press Enter to search
+        document.getElementById('searchBox').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') applyFilters();
+        });
     </script>
 
-    <?php include '../includes/footer.php'; ?>
-</body>
+    <?php include '../includes/../includes/footer.php'; ?>
+    </body>
 
 </html>

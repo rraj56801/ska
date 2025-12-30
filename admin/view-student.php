@@ -40,9 +40,10 @@ $payment_stmt = $pdo->prepare("SELECT * FROM fee_payments WHERE reg_no = ? ORDER
 $payment_stmt->execute([$reg_no]);
 $payments = $payment_stmt->fetchAll();
 
-$result_stmt = $pdo->prepare("SELECT * FROM results WHERE reg_no = ? ORDER BY result_date DESC");
+$result_stmt = $pdo->prepare("SELECT * FROM results WHERE reg_no = ? ORDER BY course_code DESC, result_date DESC");
 $result_stmt->execute([$reg_no]);
 $results = $result_stmt->fetchAll();
+
 
 ?>
 <?php include 'header.php'; ?>
@@ -116,124 +117,127 @@ $results = $result_stmt->fetchAll();
 
 
                     <div class="col-lg-3 text-center mb-4">
-    <?php
-    // Proper photo path logic
-    $photo_filename = trim($student['photo'] ?? '');
-    $photo_path = $photo_filename ? "../assets/images/students/" . htmlspecialchars($photo_filename) : "../assets/images/default.jpeg";
-    ?>
-    
-    <div class="position-relative d-inline-block photo-container">
-        <img src="<?= $photo_path ?>" alt="Student Photo" class="photo-img"
-            onerror="this.src='../assets/images/default.jpeg'; this.alt='Default Photo';">
-        
-        <div class="photo-overlay">
-            <i class="bi bi-camera-fill text-white mb-2" style="font-size: 2rem;"></i>
-            <button type="button" class="btn btn-light btn-sm" onclick="document.getElementById('photoUpload').click()">
-                <i class="bi bi-upload me-1"></i> Change Photo
-            </button>
-            <small class="text-white mt-2 d-block opacity-75">Max 5MB</small>
-        </div>
-    </div>
-    
-    <form action="update-student-photo.php" method="POST" enctype="multipart/form-data" id="photoForm">
-        <input type="hidden" name="student_id" value="<?= $student['id'] ?>">
-        <input type="hidden" name="reg_no" value="<?= $reg_no ?>">
-        <input type="hidden" name="redirect_to" value="view-student?reg=<?= urlencode($reg_no) ?>">
-        <input type="file" name="photo" id="photoUpload" accept="image/jpeg,image/png,image/gif,image/webp" 
-               style="display:none;" onchange="validateAndSubmit(this)">
-    </form>
+                        <?php
+                        // Proper photo path logic
+                        $photo_filename = trim($student['photo'] ?? '');
+                        $photo_path = $photo_filename ? "../assets/images/students/" . htmlspecialchars($photo_filename) : "../assets/images/default.jpeg";
+                        ?>
 
-   <div class="mt-4">
-    
-    <!-- Upload Documents Button -->
-  <a href="upload-student-document?reg=<?= $reg_no ?>" 
-   class="btn btn-outline-primary px-4 shadow">
-    <i class="bi bi-file-earmark-arrow-up"></i> Manage Documents
-</a>
+                        <div class="position-relative d-inline-block photo-container">
+                            <img src="<?= $photo_path ?>" alt="Student Photo" class="photo-img"
+                                onerror="this.src='../assets/images/default.jpeg'; this.alt='Default Photo';">
 
-</div>
+                            <div class="photo-overlay">
+                                <i class="bi bi-camera-fill text-white mb-2" style="font-size: 2rem;"></i>
+                                <button type="button" class="btn btn-light btn-sm"
+                                    onclick="document.getElementById('photoUpload').click()">
+                                    <i class="bi bi-upload me-1"></i> Change Photo
+                                </button>
+                                <small class="text-white mt-2 d-block opacity-75">Max 5MB</small>
+                            </div>
+                        </div>
 
-</div>
+                        <form action="update-student-photo.php" method="POST" enctype="multipart/form-data"
+                            id="photoForm">
+                            <input type="hidden" name="student_id" value="<?= $student['id'] ?>">
+                            <input type="hidden" name="reg_no" value="<?= $reg_no ?>">
+                            <input type="hidden" name="redirect_to" value="view-student?reg=<?= urlencode($reg_no) ?>">
+                            <input type="file" name="photo" id="photoUpload"
+                                accept="image/jpeg,image/png,image/gif,image/webp" style="display:none;"
+                                onchange="validateAndSubmit(this)">
+                        </form>
 
-<style>
-.photo-container {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
+                        <div class="mt-4">
 
-.photo-img {
-    display: block;
-    width: 170px;
-    height: 190px;
-    object-fit: cover;
-    border: 6px solid white;
-    border-radius: 12px;
-}
+                            <!-- Upload Documents Button -->
+                            <a href="upload-student-document?reg=<?= $reg_no ?>"
+                                class="btn btn-outline-primary px-4 shadow">
+                                <i class="bi bi-file-earmark-arrow-up"></i> Manage Documents
+                            </a>
 
-.photo-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 15px;
-}
+                        </div>
 
-.photo-container:hover .photo-overlay {
-    opacity: 1;
-}
+                    </div>
 
-.photo-overlay .btn {
-    transform: translateY(10px);
-    transition: transform 0.3s ease;
-}
+                    <style>
+                        .photo-container {
+                            position: relative;
+                            overflow: hidden;
+                            display: inline-block;
+                            border-radius: 15px;
+                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                        }
 
-.photo-container:hover .photo-overlay .btn {
-    transform: translateY(0);
-}
-</style>
+                        .photo-img {
+                            display: block;
+                            width: 170px;
+                            height: 190px;
+                            object-fit: cover;
+                            border: 6px solid white;
+                            border-radius: 12px;
+                        }
 
-<script>
-function validateAndSubmit(input) {
-    const file = input.files[0];
-    if (!file) return;
+                        .photo-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.7);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            opacity: 0;
+                            transition: opacity 0.3s ease;
+                            border-radius: 15px;
+                        }
 
-    // Validate file size (5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-        alert('File size must be less than 5MB\n\nYour file: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB');
-        input.value = '';
-        return;
-    }
+                        .photo-container:hover .photo-overlay {
+                            opacity: 1;
+                        }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type!\n\nAllowed: JPG, PNG, GIF, WebP\nYour file: ' + file.type);
-        input.value = '';
-        return;
-    }
+                        .photo-overlay .btn {
+                            transform: translateY(10px);
+                            transition: transform 0.3s ease;
+                        }
 
-    // Show loading overlay
-    const overlay = document.querySelector('.photo-overlay');
-    const originalContent = overlay.innerHTML;
-    overlay.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Uploading...</span></div><small class="text-white mt-2">Please wait...</small>';
-    overlay.style.opacity = '1';
-    
-    // Submit form
-    document.getElementById('photoForm').submit();
-}
-</script>
+                        .photo-container:hover .photo-overlay .btn {
+                            transform: translateY(0);
+                        }
+                    </style>
+
+                    <script>
+                        function validateAndSubmit(input) {
+                            const file = input.files[0];
+                            if (!file) return;
+
+                            // Validate file size (5MB)
+                            const maxSize = 5 * 1024 * 1024;
+                            if (file.size > maxSize) {
+                                alert('File size must be less than 5MB\n\nYour file: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB');
+                                input.value = '';
+                                return;
+                            }
+
+                            // Validate file type
+                            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                            if (!allowedTypes.includes(file.type)) {
+                                alert('Invalid file type!\n\nAllowed: JPG, PNG, GIF, WebP\nYour file: ' + file.type);
+                                input.value = '';
+                                return;
+                            }
+
+                            // Show loading overlay
+                            const overlay = document.querySelector('.photo-overlay');
+                            const originalContent = overlay.innerHTML;
+                            overlay.innerHTML = '<div class="spinner-border text-light" role="status"><span class="visually-hidden">Uploading...</span></div><small class="text-white mt-2">Please wait...</small>';
+                            overlay.style.opacity = '1';
+
+                            // Submit form
+                            document.getElementById('photoForm').submit();
+                        }
+                    </script>
 
 
 
@@ -402,33 +406,56 @@ function validateAndSubmit(input) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($payments as $p): ?>
+                            <?php
+                            $currentYear = null;
+                            foreach ($payments as $p):
+                                $paymentYear = date('Y', strtotime($p['payment_date']));
+
+                                // When year changes, print a separator row
+                                if ($paymentYear !== $currentYear):
+                                    $currentYear = $paymentYear;
+                                    ?>
+                                    <tr class="table-light">
+                                        <td colspan="6" class="fw-bold">
+                                            Year: <?= $currentYear ?>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                endif;
+                                ?>
                                 <tr>
                                     <td><?= date('d-M-Y', strtotime($p['payment_date'])) ?></td>
                                     <td><span class="badge bg-secondary"><?= $p['receipt_no'] ?></span></td>
                                     <td><strong>₹<?= number_format($p['amount'], 2) ?></strong></td>
                                     <td><?= htmlspecialchars($p['payment_mode']) ?></td>
                                     <td><?= htmlspecialchars($p['added_by']) ?></td>
-                                    <!-- Replace this link: -->
                                     <td>
                                         <span class="btn btn-sm btn-success disabled"
                                             style="pointer-events: none; cursor: not-allowed;" title="Not available">
                                             View
                                         </span>
                                     </td>
-
                                 </tr>
                             <?php endforeach; ?>
+
                             <?php if (empty($payments)): ?>
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">No payments yet</td>
+                                    <td colspan="6" class="text-center py-4 text-muted">No payments yet</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
+
                     </table>
                 </div>
             </div>
         </div>
+
+        <?php
+        // Before displaying the table, group results by class_code
+        usort($results, function ($a, $b) {
+            return strcmp($a['course_code'], $b['course_code']);
+        });
+        ?>
 
         <!-- Results -->
         <div class="card section-card">
@@ -447,11 +474,23 @@ function validateAndSubmit(input) {
                                 <th>%</th>
                                 <th>Status</th>
                                 <th>Result Date</th>
-
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($results as $r): ?>
+                            <?php
+                            $currentClass = null;
+                            foreach ($results as $r):
+                                if ($currentClass !== $r['course_code']):
+                                    $currentClass = $r['course_code'];
+                                    $displayClass = str_replace('CLASS', 'CLASS ', $currentClass);
+                                    ?>
+                                    <tr class="table-secondary">
+                                        <td colspan="7" class="text-center fw-bold text-muted">
+                                            ----------- <?= htmlspecialchars($displayClass) ?> -----------
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+
                                 <tr>
                                     <td><?= $r['exam_held_on'] ?></td>
                                     <td><?= $r['subject_code'] ?></td>
@@ -460,21 +499,21 @@ function validateAndSubmit(input) {
                                     <td><?= number_format(($r['theory_marks'] / $r['total_theory_marks']) * 100, 1) ?>%</td>
                                     <td>
                                         <span class="badge 
-                                        <?= $r['result_status'] == 'PASS' ? 'bg-success' :
-                                            ($r['result_status'] == 'ABSENT' ? 'bg-secondary' :
-                                                ($r['result_status'] == 'FAIL' ? 'bg-danger' :
-                                                    ($r['result_status'] == 'PENDING' ? 'bg-warning' : 'bg-info')))
-                                            ?>">
+                                    <?= $r['result_status'] == 'PASS' ? 'bg-success' :
+                                        ($r['result_status'] == 'ABSENT' ? 'bg-secondary' :
+                                            ($r['result_status'] == 'FAIL' ? 'bg-danger' :
+                                                ($r['result_status'] == 'PENDING' ? 'bg-warning' : 'bg-info')))
+                                        ?>">
                                             <?= htmlspecialchars($r['result_status']) ?>
                                         </span>
                                     </td>
                                     <td><?= $r['result_date'] ? date('d-M-Y', strtotime($r['result_date'])) : '—' ?></td>
-
                                 </tr>
                             <?php endforeach; ?>
+
                             <?php if (empty($results)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-muted">No results yet</td>
+                                    <td colspan="7" class="text-center py-4 text-muted">No results yet</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -483,36 +522,35 @@ function validateAndSubmit(input) {
             </div>
         </div>
 
+
         <!-- Action Buttons -->
-<div class="text-center mt-5">
-    <div class="btn-group btn-group-lg gap-2" role="group">
-        <a href="edit-student?reg=<?= urlencode($reg_no) ?>" class="btn btn-outline-warning px-4 shadow">
-            <i class="bi bi-pencil-square"></i> Edit
-        </a>
-        <a href="add-fee?reg=<?= urlencode($reg_no) ?>" class="btn btn-outline-success px-4 shadow">
-            <i class="bi bi-cash-coin"></i> Pay Fee
-        </a>
-        <a href="../pdf/idcard?reg=<?= $reg_no ?>" target="_blank" class="btn btn-outline-primary px-4 shadow">
-            <i class="bi bi-person-vcard"></i> ID Card
-        </a>
-        <a href="../pdf/certificate?reg=<?= $reg_no ?>" target="_blank"
-           class="btn btn-outline-success px-4 shadow">
-            <i class="bi bi-award-fill"></i> Certificate
-        </a>
-        <a href="../pdf/marksheet?reg=<?= $reg_no ?>" target="_blank"
-           class="btn btn-outline-secondary px-4 shadow">
-            <i class="bi bi-clipboard-data"></i> Marksheet
-        </a>
-        <a href="../pdf/admitcard?reg=<?= $reg_no ?>" target="_blank"
-           class="btn btn-outline-info px-4 shadow">
-            <i class="bi bi-file-earmark-check"></i> Admit Card
-        </a>
-        <a href="add-result?reg=<?= $reg_no ?>" target="_blank"
-           class="btn btn-outline-danger px-4 shadow">
-            <i class="bi bi-clipboard-check"></i> Add Result
-        </a>
-    </div>
-</div>
+        <div class="text-center mt-5">
+            <div class="btn-group btn-group-lg gap-2" role="group">
+                <a href="edit-student?reg=<?= urlencode($reg_no) ?>" class="btn btn-outline-warning px-4 shadow">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </a>
+                <a href="add-fee?reg=<?= urlencode($reg_no) ?>" class="btn btn-outline-success px-4 shadow">
+                    <i class="bi bi-cash-coin"></i> Pay Fee
+                </a>
+                <a href="../pdf/idcard?reg=<?= $reg_no ?>" target="_blank" class="btn btn-outline-primary px-4 shadow">
+                    <i class="bi bi-person-vcard"></i> ID Card
+                </a>
+                <a href="../pdf/certificate?reg=<?= $reg_no ?>" target="_blank"
+                    class="btn btn-outline-success px-4 shadow">
+                    <i class="bi bi-award-fill"></i> Certificate
+                </a>
+                <a href="../pdf/marksheet?reg=<?= $reg_no ?>" target="_blank"
+                    class="btn btn-outline-secondary px-4 shadow">
+                    <i class="bi bi-clipboard-data"></i> Marksheet
+                </a>
+                <a href="../pdf/admitcard?reg=<?= $reg_no ?>" target="_blank" class="btn btn-outline-info px-4 shadow">
+                    <i class="bi bi-file-earmark-check"></i> Admit Card
+                </a>
+                <a href="add-result?reg=<?= $reg_no ?>" target="_blank" class="btn btn-outline-danger px-4 shadow">
+                    <i class="bi bi-clipboard-check"></i> Add Result
+                </a>
+            </div>
+        </div>
 
     </div>
 

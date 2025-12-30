@@ -270,19 +270,25 @@ $student_photo = !empty($student['photo']) ? '../assets/images/students/' . html
                                                 <?= htmlspecialchars($p['payment_mode']) ?>
                                             </span>
                                         </td>
-  <style>
-    .wallet-cell {
-        cursor: pointer;
-        background-color: #09e40dff;          /* normal background */
-        transition: background-color 0.2s;
-    }
+                                        <style>
+                                            .wallet-cell {
+                                                background-color: #09e40dff;
+                                                transition: background-color 0.2s;
+                                            }
 
-    .wallet-cell:hover {
-        background-color: #059adeff;         /* hover background color */
-    }
-</style>
+                                            <?php if (isset($_SESSION['admin'])): ?>
+                                                .wallet-cell {
+                                                    cursor: pointer;
+                                                }
 
-                                            <td class="wallet-cell" onclick="window.location.href='../admin/cashier-wallet';">
+                                                .wallet-cell:hover {
+                                                    background-color: #059adeff;
+                                                }
+
+                                            <?php endif; ?>
+                                        </style>
+
+                                        <td class="wallet-cell" <?php if (isset($_SESSION['admin'])): ?>onclick="window.location.href='../admin/cashier-wallet';" <?php endif; ?>>
                                             <div class="fw-semibold"><?= htmlspecialchars($p['added_by']) ?></div>
                                         </td>
                                         <td>
@@ -311,7 +317,7 @@ $student_photo = !empty($student['photo']) ? '../assets/images/students/' . html
         </div>
     </div>
 
-   
+
     <?php include '../includes/footer.php'; ?>
 </body>
 

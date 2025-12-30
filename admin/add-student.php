@@ -21,11 +21,13 @@ if ($_POST) {
         FROM students 
         WHERE mobile = ? 
           AND course_code = ?
+          AND dob = ?
         LIMIT 1
     ");
     $checkStmt->execute([
         $_POST['mobile'],
-        $_POST['course_code']
+        $_POST['course_code'],
+        $_POST['dob']
     ]);
 
     if ($checkStmt->fetch()) {

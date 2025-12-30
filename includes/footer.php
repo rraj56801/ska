@@ -3,96 +3,95 @@
 ?>
 <footer class="mt-5">
     <style>
+        .ska-footer {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: #e5e7eb;
+            padding: 40px 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .ska-footer {
-    background: linear-gradient(135deg, #1f2937, #111827);
-    color: #e5e7eb;
-    padding: 40px 0 20px;
-    position: relative;
-    overflow: hidden;
-}
+        .ska-footer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(220, 38, 38, 0.08) 0, transparent 50%),
+                radial-gradient(circle at 90% 100%, rgba(185, 28, 28, 0.06) 0, transparent 55%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
 
-.ska-footer::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at 10% 0%, rgba(220, 38, 38, 0.08) 0, transparent 50%),
-        radial-gradient(circle at 90% 100%, rgba(185, 28, 28, 0.06) 0, transparent 55%);
-    opacity: 0.7;
-    pointer-events: none;
-}
+        .ska-footer-inner {
+            position: relative;
+            z-index: 1;
+        }
 
-.ska-footer-inner {
-    position: relative;
-    z-index: 1;
-}
+        .ska-footer-title {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.6rem;
+            letter-spacing: 0.08em;
+            color: #f3f4f6;
+        }
 
-.ska-footer-title {
-    font-family: 'Pacifico', cursive;
-    font-size: 1.6rem;
-    letter-spacing: 0.08em;
-    color: #f3f4f6;
-}
+        .ska-footer-subtitle {
+            font-size: 0.95rem;
+            color: #d1d5db;
+            line-height: 1.6;
+        }
 
-.ska-footer-subtitle {
-    font-size: 0.95rem;
-    color: #d1d5db;
-    line-height: 1.6;
-}
+        .ska-footer-separator {
+            border-top: 1px solid rgba(156, 163, 175, 0.2);
+            margin: 18px 0 12px;
+        }
 
-.ska-footer-separator {
-    border-top: 1px solid rgba(156, 163, 175, 0.2);
-    margin: 18px 0 12px;
-}
+        .ska-footer-copy {
+            font-size: 0.85rem;
+            color: #d1d5db;
+        }
 
-.ska-footer-copy {
-    font-size: 0.85rem;
-    color: #d1d5db;
-}
+        .ska-footer-copy span {
+            color: #f9fafb;
+            font-weight: 500;
+        }
 
-.ska-footer-copy span {
-    color: #f9fafb;
-    font-weight: 500;
-}
+        /* Stats Section */
+        .ska-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(156, 163, 175, 0.15);
+        }
 
-/* Stats Section */
-.ska-stats {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 1.5rem 0;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(156, 163, 175, 0.15);
-}
+        .about_point {
+            text-align: center;
+            flex: 1 1 120px;
+            min-width: 100px;
+        }
 
-.about_point {
-    text-align: center;
-    flex: 1 1 120px;
-    min-width: 100px;
-}
+        .about_point i {
+            font-size: 2rem;
+            color: #f87171;
+            margin-bottom: 0.5rem;
+        }
 
-.about_point i {
-    font-size: 2rem;
-    color: #f87171;
-    margin-bottom: 0.5rem;
-}
+        .about_point .counter-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #f9fafb;
+            margin: 0.25rem 0 0.25rem;
+        }
 
-.about_point .counter-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #f9fafb;
-    margin: 0.25rem 0 0.25rem;
-}
-
-.about_point h3 {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #d1d5db;
-    margin: 0;
-    line-height: 1.3;
-}
+        .about_point h3 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #d1d5db;
+            margin: 0;
+            line-height: 1.3;
+        }
 
         @media (max-width: 768px) {
             .ska-stats {
@@ -171,7 +170,8 @@
                         Sri Krishna Academy
                     </div>
                     <div class="ska-footer-subtitle">
-                        Government-registered school and coaching institute specializing in entrance exam preparation for Navodaya, Sainik School, Netarhat and other competitive exams.
+                        Government-registered school and coaching institute specializing in entrance exam preparation
+                        for Navodaya, Sainik School, Netarhat and other competitive exams.
                     </div>
                 </div>
                 <div class="col-md-6 d-flex flex-column justify-content-center align-items-md-end">
@@ -225,7 +225,8 @@
 
             <div class="d-flex justify-content-between align-items-center ska-footer-copy-wrapper">
                 <div class="ska-footer-copy">
-                    &copy; <?php echo date('Y'); ?> <span>Sri Krishna Academy</span>. All rights reserved. | Est. 1992 | U-DISE: 10060800613
+                    &copy; <?php echo date('Y'); ?> <span>Sri Krishna Academy</span>. All rights reserved. | Est. 1992 |
+                    U-DISE: 10060800613
                 </div>
                 <div class="ska-footer-copy">
                     Designed &amp; Developed with <span>&hearts;</span> by
@@ -241,7 +242,15 @@
                         onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="bi bi-linkedin"></i>
                     </a>
+                    <a href="https://wa.me/+918405913144?text=Hi%20Rahul%2C%20I%27d%20like%20to%20connect%20with%20you%20for%20your%20school%20website."
+                        target="_blank" rel="noopener noreferrer" title="Contact via WhatsApp"
+                        style="margin-left: 8px; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #25D366; color: white; border-radius: 4px; text-decoration: none; transition: transform 0.2s ease;"
+                        onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
+
                 </div>
+
             </div>
         </div>
     </div>
